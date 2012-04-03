@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/trusttools/!svn/ver/11/plugin/trunk/CertValidate/chrome/locale/en-US
+END
+options.dtd
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/trusttools/!svn/ver/11/plugin/trunk/CertValidate/chrome/locale/en-US/options.dtd
+END
+overlay.dtd
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/trusttools/!svn/ver/3/plugin/trunk/CertValidate/chrome/locale/en-US/overlay.dtd
+END
+overlay.properties
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/trusttools/!svn/ver/5/plugin/trunk/CertValidate/chrome/locale/en-US/overlay.properties
+END

@@ -1,0 +1,31 @@
+<!ENTITY prefwindow.title "学認証明書管理の設定 CertValidate Options">
+
+
+<!ENTITY pane1.title "証明書リスト管理の設定">
+<!ENTITY pane2.title "cookie（default IdP）の設定">
+
+<!ENTITY certListUrlPref.label "証明書リスト（JSONファイル）の URL を入力">
+<!ENTITY certListUrlPref.accesskey "A">
+
+<!ENTITY validDatePref.label "証明書リストの有効期間（日）を入力（整数）">
+<!ENTITY validDatePref.accesskey "B">
+
+<!ENTITY userDefinedPref.label "ユーザ定義の文字列を入力">
+<!ENTITY userDefinedPref.accesskey "C">
+
+
+
+<!ENTITY cookieSetPref.label "cookie を自動的に生成">
+<!ENTITY cookieSetPref.accesskey "D">
+
+<!ENTITY cookieNamePref.label "cookie 名を設定">
+<!ENTITY cookieNamePref.accesskey "E">
+
+<!ENTITY cookieValuePref.label "cookie 値 （Entity ID） を設定">
+<!ENTITY cookieValuePref.accesskey "F">
+
+<!ENTITY cookieDomainPref.label "cookie ドメイン （URL） を設定">
+<!ENTITY cookieDomainPref.accesskey "G">
+
+<!ENTITY cookieBase64Pref.label "cookie Base64 符号化フラグを設定">
+<!ENTITY cookieBase64Pref.accesskey "H">

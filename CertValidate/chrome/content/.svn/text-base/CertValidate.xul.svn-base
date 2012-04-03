@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://CertValidate/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://CertValidate/locale/overlay.dtd">
+
+<overlay id="CertValidate-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <!-- 外部ライブラリ -->
+  <script type="text/javascript" src="lib/2.3.0-crypto-min.js"></script>
+
+  <script type="text/javascript" src="lib/jsbn.js"></script>
+  <script type="text/javascript" src="lib/jsbn2.js"></script>
+  <script type="text/javascript" src="lib/prng4.js"></script>
+  <script type="text/javascript" src="lib/rng.js"></script>
+  <script type="text/javascript" src="lib/rsa.js"></script>
+  <script type="text/javascript" src="lib/rsa2.js"></script>
+  <script type="text/javascript" src="lib/sha1.js"></script>
+  <script type="text/javascript" src="lib/sha256.js"></script>
+  <script type="text/javascript" src="lib/rsa-pem.js"></script>
+  <script type="text/javascript" src="lib/rsa-sign.js"></script>
+  <script type="text/javascript" src="lib/base64.js"></script>
+  <script type="text/javascript" src="lib/asn1hex.js"></script>
+  <script type="text/javascript" src="lib/x509.js"></script>
+
+
+  <!-- JSファイル -->
+  <script src="CookieGenerator.js"/>
+  <script src="CertValidate.js"/>
+
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="CertValidate-strings" src="chrome://CertValidate/locale/overlay.properties"/>
+  </stringbundleset>
+
+
+  <toolbox id="navigator-toolbox">	<!--firefox-->
+    <toolbar id="toolbarCertValidate" class="" align="center" toolbarname="&CertValidateToolbar.name;" customizable="true">
+      <image id="toolbarImage1" src="" width="23" height="23"/>
+      <label id="toolbarLabel1" value="&CertValidateToolbar.label;"/>
+      <progressmeter mode="undetermined" id="progressCertValidate"/>
+    </toolbar>
+  </toolbox>
+
+
+</overlay>

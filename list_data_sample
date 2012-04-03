@@ -1,0 +1,5 @@
+idp, https://idp.nii.ac.jp/idp/shibboleth, idp.nii.ac.jp, https://idp.nii.ac.jp/idp/profile/Shibboleth/SSO, https://idp.nii.ac.jp/idp/profile/SAML2/POST/SSO
+idp, https://118.22.148.186, 118.22.148.186, https://118.22.148.186, https://118.22.148.186
+sp, https://addons.mozilla.org/en-US/developers/docs/how-to/getting-started, addons.mozilla.org, addons.mozilla.org
+sp, https://192.168.1.155/seciossadmin/, 192.168.1.155, 192.168.1.155/seciossadmin,
+sp, https://scauth.scopus.com/, scauth.scopus.com, www.scopus.com/standard/institutionLogin.url, pn1, https://scauth.scopus.com/SHIRE/SAML/POST, 1, 1

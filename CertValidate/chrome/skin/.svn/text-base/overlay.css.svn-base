@@ -1,0 +1,15 @@
+
+/* toolbar color */
+toolbar.greentoolbar {
+	-moz-appearance: none;
+	background-color: #00ff00 !important;
+}
+toolbar.redtoolbar {
+	-moz-appearance: none;
+	background-color: #ff0000 !important;
+}
+
+
+
+
+

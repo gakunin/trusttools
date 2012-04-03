@@ -1,0 +1,6 @@
+content   CertValidate                 chrome/content/
+skin      CertValidate   classic/1.0   chrome/skin/
+locale    CertValidate   en-US         chrome/locale/en-US/
+
+
+overlay   chrome://browser/content/browser.xul   chrome://CertValidate/content/CertValidate.xul

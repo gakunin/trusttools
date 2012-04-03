@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/trusttools/!svn/ver/11/plugin/trunk/CertValidate/chrome/content
+END
+_certified.gif
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/trusttools/!svn/ver/5/plugin/trunk/CertValidate/chrome/content/_certified.gif
+END
+CertValidate.js
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/trusttools/!svn/ver/11/plugin/trunk/CertValidate/chrome/content/CertValidate.js
+END
+options.xul
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/trusttools/!svn/ver/11/plugin/trunk/CertValidate/chrome/content/options.xul
+END
+_warning.gif
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/trusttools/!svn/ver/5/plugin/trunk/CertValidate/chrome/content/_warning.gif
+END
+CookieGenerator.js
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/trusttools/!svn/ver/11/plugin/trunk/CertValidate/chrome/content/CookieGenerator.js
+END
+warning.xul
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/trusttools/!svn/ver/3/plugin/trunk/CertValidate/chrome/content/warning.xul
+END
+CertValidate.xul
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/trusttools/!svn/ver/5/plugin/trunk/CertValidate/chrome/content/CertValidate.xul
+END
