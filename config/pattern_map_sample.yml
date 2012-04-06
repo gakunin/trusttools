@@ -1,0 +1,7 @@
+https://scauth.scopus.com/:
+  login_prefix_uri: www.scopus.com/standard/institutionLogin.url
+  pattern_name: pn1
+https://sdauth.sciencedirect.com/:
+  login_prefix_uri: www.sciencedirect.com/science
+  pattern_name: pn1
+  cookie_flag: 1

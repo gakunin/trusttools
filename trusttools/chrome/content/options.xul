@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE prefwindow SYSTEM "chrome://TrustTools/locale/options.dtd">
+
+
+<prefwindow id="TrustTools-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
+
+  <!-- 証明書リスト管理の設定 -->
+  <prefpane id="pane1" label="&pane1.title;" flex="1">
+    <!-- オプションID -->
+    <preferences>
+      <!-- 証明書リスト(JSONファイル)のURL -->
+      <preference id="certListUrlPref" name="extensions.TrustTools.certListUrlPref" type="string"/>
+      <!-- 証明書リストの有効期間(日) -->
+      <preference id="validDatePref" name="extensions.TrustTools.validDatePref" type="int"/>
+      <!-- ユーザ定義の文字列 -->
+      <preference id="userDefinedPref" name="extensions.TrustTools.userDefinedPref" type="string"/>
+    </preferences>
+
+	<!-- オプションUI -->
+    <label accesskey="&certListUrlPref.accesskey;" control="textCertListUrlPref">&certListUrlPref.label;</label>
+    <textbox id="textCertListUrlPref" preference="certListUrlPref"/>
+
+    <label accesskey="&validDatePref.accesskey;" control="textValidDatePref">&validDatePref.label;</label>
+    <textbox id="textValidDatePref" preference="validDatePref"/>
+
+    <label accesskey="&userDefinedPref.accesskey;" control="textUserDefinedPref">&userDefinedPref.label;</label>
+    <textbox id="textUserDefinedPref" preference="userDefinedPref"/>
+  </prefpane>
+
+
+  <!-- cookie(default IdP)の設定 -->
+  <prefpane id="pane2" label="&pane2.title;" flex="1">
+    <!-- オプションのID設定 -->
+    <preferences>
+      <!-- cookie自動作成フラグ -->
+      <preference id="cookieSetPref" name="extensions.TrustTools.cookieSetPref" type="bool"/>
+      <!-- cookie名(_saml_idp) -->
+      <preference id="cookieNamePref" name="extensions.TrustTools.cookieNamePref" type="string"/>
+      <!-- cookie値(Entity ID) -->
+      <preference id="cookieValuePref" name="extensions.TrustTools.cookieValuePref" type="string"/>
+      <!-- cookieドメイン(URL) -->
+      <preference id="cookieDomainPref" name="extensions.TrustTools.cookieDomainPref" type="string"/>
+      <!-- cookie Base64符号化フラグ -->
+      <preference id="cookieBase64Pref" name="extensions.TrustTools.cookieBase64Pref" type="bool"/>
+    </preferences>
+
+	<!-- オプションのUI設定 -->
+	<checkbox id="chkCookieSetPref" preference="cookieSetPref" 
+		label="&cookieSetPref.label;" accesskey="&cookieSetPref.accesskey;"/>
+
+    <label accesskey="&cookieValuePref.accesskey;" control="textCookieValuePref">&cookieValuePref.label;</label>
+    <textbox id="textCookieValuePref" preference="cookieValuePref"/>
+
+    <label accesskey="&cookieNamePref.accesskey;" control="textCookieNamePref">&cookieNamePref.label;</label>
+    <textbox id="textCookieNamePref" preference="cookieNamePref" readonly="true"/>
+
+    <label accesskey="&cookieDomainPref.accesskey;" control="textCookieDomainPref">&cookieDomainPref.label;</label>
+    <textbox id="textCookieDomainPref" preference="cookieDomainPref" readonly="true"/>
+
+	<checkbox id="chkCookieBase64Pref" preference="cookieBase64Pref"
+		label="&cookieBase64Pref.label;" accesskey="&cookieBase64Pref.accesskey;"/>
+  </prefpane>
+
+</prefwindow>

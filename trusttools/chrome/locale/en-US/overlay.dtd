@@ -1,0 +1,12 @@
+<!ENTITY TrustTools.label "Your localized menuitem">
+
+<!ENTITY TrustToolsContext.label "Your Menuitem">
+<!ENTITY TrustToolsContext.accesskey "Y">
+
+<!ENTITY TrustToolsToolbarButton.label "Your Toolbar Button">
+<!ENTITY TrustToolsToolbarButton.tooltip "This is your toolbar button!">
+
+<!ENTITY TrustToolsSidebar.label "Your Sidebar">
+
+<!ENTITY TrustToolsToolbar.name  "TrustTools Toolbar">
+<!ENTITY TrustToolsToolbar.label "&TrustToolsToolbar.name;">

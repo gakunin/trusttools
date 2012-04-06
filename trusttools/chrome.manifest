@@ -1,0 +1,6 @@
+content   TrustTools                 chrome/content/
+skin      TrustTools   classic/1.0   chrome/skin/
+locale    TrustTools   en-US         chrome/locale/en-US/
+
+
+overlay   chrome://browser/content/browser.xul   chrome://TrustTools/content/TrustTools.xul

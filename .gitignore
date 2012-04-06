@@ -1,0 +1,6 @@
+.bundle
+**~
+files/*
+certs/*
+keystore/*
+log/*
