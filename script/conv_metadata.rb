@@ -76,17 +76,17 @@ def create_entity_array(elem, config)
       end
     end
     entity_id = elem.attributes["entityID"]
-    cert_uri_prefix = URI.parse(entity_id).host
+    verify_uri_prefix = URI.parse(entity_id).host
     login_prefix_uri = nil
     pattern_name = nil
     cookie_flag = nil
     if !config[entity_id].nil?
-      cert_uri_prefix = config[entity_id]["cert_uri_prefix"] || cert_uri_prefix
+      verify_uri_prefix = config[entity_id]["verify_uri_prefix"] || verify_uri_prefix
       login_prefix_uri = config[entity_id]["login_prefix_uri"]
       pattern_name = config[entity_id]["pattern_name"]
       cookie_flag = config[entity_id]["cookie_flag"]
     end
-    return ["sp", entity_id, cert_uri_prefix, login_prefix_uri, pattern_name, saml_acs, saml_version, cookie_flag]
+    return ["sp", entity_id, verify_uri_prefix, login_prefix_uri, pattern_name, saml_acs, saml_version, cookie_flag]
   end
 end
 

@@ -10,7 +10,7 @@
     <!-- オプションID -->
     <preferences>
       <!-- 証明書リスト(JSONファイル)のURL -->
-      <preference id="certListUrlPref" name="extensions.TrustTools.certListUrlPref" type="string"/>
+      <preference id="providersUriPref" name="extensions.TrustTools.providersUriPref" type="string"/>
       <!-- 証明書リストの有効期間(日) -->
       <preference id="validDatePref" name="extensions.TrustTools.validDatePref" type="int"/>
       <!-- ユーザ定義の文字列 -->
@@ -18,8 +18,8 @@
     </preferences>
 
 	<!-- オプションUI -->
-    <label accesskey="&certListUrlPref.accesskey;" control="textCertListUrlPref">&certListUrlPref.label;</label>
-    <textbox id="textCertListUrlPref" preference="certListUrlPref"/>
+    <label accesskey="&providersUriPref.accesskey;" control="textProvidersUriPref">&providersUriPref.label;</label>
+    <textbox id="textProvidersUriPref" preference="providersUriPref"/>
 
     <label accesskey="&validDatePref.accesskey;" control="textValidDatePref">&validDatePref.label;</label>
     <textbox id="textValidDatePref" preference="validDatePref"/>

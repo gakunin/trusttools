@@ -33,9 +33,8 @@
 #
 # # publish browser extension
 # every 1.days do
-#   set :output, :standard
-#   command "perl #{root}/script/mdsignxpi.pl #{root}/files/metadata.xml #{root}/keystore trusttools #{root}/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com"
 #   set :output, "#{root}/log/cron_log.log"
+#   command "perl #{root}/script/mdsignxpi.pl #{root}/files/metadata.xml #{root}/keystore trusttools #{root}/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com"
 #   command "scp #{root}/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/"
 # end
 

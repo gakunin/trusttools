@@ -18,7 +18,7 @@ var TrustTools = {
 
 		// 設定値取得
 		this.getPreferences();
-		this.certListUrlTest = (this.certListUrlPref.length != 0 && this.urlReg.test(this.certListUrlPref));
+		this.providersUriTest = (this.providersUriPref.length != 0 && this.urlReg.test(this.providersUriPref));
 
 		// default IdPを設定
 		this.setDefaultIdP();
@@ -57,7 +57,7 @@ var TrustTools = {
 
 		// 証明書リスト管理の設定値取得
 		// 証明書リスト(JSONファイル)のURL
-		this.certListUrlPref = this.prefs.getCharPref("certListUrlPref");
+		this.providersUriPref = this.prefs.getCharPref("providersUriPref");
 		// 証明書リストの有効期間(日)
 		this.validDatePref = this.prefs.getIntPref("validDatePref");
 		// ユーザ定義の文字列
@@ -118,7 +118,7 @@ var TrustTools = {
 		}
 
 		// 証明書取得URL有効の場合データベースの更新を行う
-		if (this.certListUrlTest) {
+		if (this.providersUriTest) {
 			//データベース最新情報取得
 			dbresult = this.refreshDB();
 		}
@@ -180,7 +180,7 @@ var TrustTools = {
 				this.dbhandle.executeSimpleSQL(
 					"CREATE TABLE tbl_update_info (update_date DATE not NULL)");
 				this.dbhandle.executeSimpleSQL(
-					"CREATE TABLE tbl_entity_info (entity_id TEXT not NULL, cert_uri_prefix TEXT not NULL, " +
+					"CREATE TABLE tbl_entity_info (entity_id TEXT not NULL, verify_uri_prefix TEXT not NULL, " +
 					"x509_certificate_fingerprint TEXT not NULL, idp_sp_flag TEXT not NULL, " +
 					"ssos_v1 TEXT, ssos_v2 TEXT, " +
 					"login_uri_prefix TEXT, pattern_name TEXT, " +
@@ -201,9 +201,9 @@ var TrustTools = {
 
 			// tbl_entity_info
 			this.dbSelectEntity = this.dbhandle.createStatement(
-				"SELECT entity_id, cert_uri_prefix, x509_certificate_fingerprint, idp_sp_flag, ssos_v1, ssos_v2, login_uri_prefix, pattern_name, assertion_consumer_service, saml_version, cookie_flag FROM tbl_entity_info");
-			this.dbSelectEntityByCertUri = this.dbhandle.createStatement(
-				"SELECT x509_certificate_fingerprint FROM tbl_entity_info where cert_uri_prefix = ?1");
+				"SELECT entity_id, verify_uri_prefix, x509_certificate_fingerprint, idp_sp_flag, ssos_v1, ssos_v2, login_uri_prefix, pattern_name, assertion_consumer_service, saml_version, cookie_flag FROM tbl_entity_info");
+			this.dbSelectEntityByVerifyUri = this.dbhandle.createStatement(
+				"SELECT x509_certificate_fingerprint FROM tbl_entity_info where verify_uri_prefix = ?1");
 			this.dbSelectEntityByLoginUri = this.dbhandle.createStatement(
 				"SELECT entity_id, pattern_name, assertion_consumer_service, saml_version, cookie_flag FROM tbl_entity_info where idp_sp_flag = 'sp' and login_uri_prefix = ?1");
 
@@ -211,7 +211,7 @@ var TrustTools = {
 				"SELECT ssos_v1, ssos_v2 FROM tbl_entity_info where idp_sp_flag = 'idp' and entity_id = ?1");
 
 			this.dbInsertEntity = this.dbhandle.createStatement(
-				"INSERT INTO tbl_entity_info (entity_id, cert_uri_prefix, x509_certificate_fingerprint, idp_sp_flag, ssos_v1, ssos_v2, login_uri_prefix, pattern_name, assertion_consumer_service, saml_version, cookie_flag) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)");
+				"INSERT INTO tbl_entity_info (entity_id, verify_uri_prefix, x509_certificate_fingerprint, idp_sp_flag, ssos_v1, ssos_v2, login_uri_prefix, pattern_name, assertion_consumer_service, saml_version, cookie_flag) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)");
 			this.dbDeleteEntity = this.dbhandle.createStatement(
 				"DELETE FROM tbl_entity_info");
 
@@ -472,9 +472,9 @@ var TrustTools = {
 
 	// ==========BEGIN データベース処理==========
 	// データベースから証明書リストを取得
-	getCertListFromDB: function() {
+	getProvidersFromDB: function() {
 		var oneCert;
-		var certList = new Array();
+		var providers = new Array();
 		var stmt = this.dbSelectEntity;
 		try {
 			while (stmt.executeStep()) {
@@ -482,8 +482,8 @@ var TrustTools = {
 
 				// entity_id
 				oneCert["entityId"] = stmt.getUTF8String(0);
-				// cert_uri_prefix
-				oneCert["certUriPrefix"] = stmt.getUTF8String(1);
+				// verify_uri_prefix
+				oneCert["verifyUriPrefix"] = stmt.getUTF8String(1);
 				// x509_certificate_fingerprint
 				oneCert["x509CertificateFingerprint"] = stmt.getUTF8String(2);
 				// idp_sp_flag
@@ -503,7 +503,7 @@ var TrustTools = {
 				// cookie_flag
 				oneCert["cookieFlag"] = stmt.getUTF8String(10);
 
-				certList.push(oneCert);
+				providers.push(oneCert);
 			}
 		}
 		catch(err) {
@@ -512,7 +512,7 @@ var TrustTools = {
 		finally {
 			stmt.reset();
 		}
-		return certList;
+		return providers;
 	},
 
 
@@ -528,7 +528,7 @@ var TrustTools = {
 		var match = 0;
 		var foundFp;
 
-		var stmt = this.dbSelectEntityByCertUri;
+		var stmt = this.dbSelectEntityByVerifyUri;
 		try {
 			stmt.bindUTF8StringParameter(0, websiteUrl);
 			if (stmt.executeStep()) {
@@ -607,12 +607,12 @@ var TrustTools = {
 			}
 
 			// サーバからJSONファイル取得
-			var jsonObject = this.getJSONFromServer(this.certListUrlPref);
+			var jsonObject = this.getJSONFromServer(this.providersUriPref);
 			if (!jsonObject) {
 				return false;
 			}
 			// 新証明書登録
-			if (!this.insertNewCertList(jsonObject)) {
+			if (!this.insertNewProviders(jsonObject)) {
 				return false;
 			}
 			// 新ディスカバリメソッド登録
@@ -637,7 +637,7 @@ var TrustTools = {
 			}
 
 			// 旧証明書削除
-			if (!this.deleteCertList()) {
+			if (!this.deleteProviders()) {
 				return false;
 			}
 			// 旧ディスカバリメソッド削除
@@ -646,12 +646,12 @@ var TrustTools = {
 			}
 
 			// サーバからJSONファイル取得
-			var jsonObject = this.getJSONFromServer(this.certListUrlPref);
+			var jsonObject = this.getJSONFromServer(this.providersUriPref);
 			if (!jsonObject) {
 				return false;
 			}
 			// 新証明書登録
-			if (!this.insertNewCertList(jsonObject)) {
+			if (!this.insertNewProviders(jsonObject)) {
 				return false;
 			}
 			// 新ディスカバリメソッド登録
@@ -665,7 +665,7 @@ var TrustTools = {
 
 
 	// 旧証明書削除
-	deleteCertList: function() {
+	deleteProviders: function() {
 		stmt = this.dbDeleteEntity;
 		try {
 			stmt.execute();
@@ -699,31 +699,31 @@ var TrustTools = {
 
 
 	// 証明書登録
-	insertNewCertList: function(jsonObject) {
+	insertNewProviders: function(jsonObject) {
 		this.toolbarLabel1.value = "updating cert list in database...";
 
-		var certListObject = jsonObject.contents.cert_list;
+		var providersObject = jsonObject.contents.providers;
 
-		if (certListObject != null) {
+		if (providersObject != null) {
 			// 証明書登録
 			var stmt = this.dbInsertEntity;
 			try {
-				for (i = 0; i < certListObject.length; i++) {
+				for (i = 0; i < providersObject.length; i++) {
 					// 証明書fingerprintを取得、データベースへ登録
-					var entityId = certListObject[i].entity_id;
-					var certUriPrefix = certListObject[i].cert_uri_prefix;
-					var x509CertificateFingerprint = certListObject[i].x509_certificate_fingerprint;
-					var idpSpFlag = certListObject[i].idp_sp_flag;
-					var ssosV1 = certListObject[i].ssos_v1;
-					var ssosV2 = certListObject[i].ssos_v2;
-					var loginUriPrefix = certListObject[i].login_uri_prefix;
-					var patternName = certListObject[i].pattern_name;
-					var assertionConsumerService = certListObject[i].assertion_consumer_service;
-					var samlVersion = certListObject[i].saml_version;
-					var cookieFlag = certListObject[i].cookie_flag;
+					var entityId = providersObject[i].entity_id;
+					var verifyUriPrefix = providersObject[i].verify_uri_prefix;
+					var x509CertificateFingerprint = providersObject[i].x509_certificate_fingerprint;
+					var idpSpFlag = providersObject[i].idp_sp_flag;
+					var ssosV1 = providersObject[i].ssos_v1;
+					var ssosV2 = providersObject[i].ssos_v2;
+					var loginUriPrefix = providersObject[i].login_uri_prefix;
+					var patternName = providersObject[i].pattern_name;
+					var assertionConsumerService = providersObject[i].assertion_consumer_service;
+					var samlVersion = providersObject[i].saml_version;
+					var cookieFlag = providersObject[i].cookie_flag;
 
 					stmt.bindUTF8StringParameter(0, entityId);
-					stmt.bindUTF8StringParameter(1, certUriPrefix);
+					stmt.bindUTF8StringParameter(1, verifyUriPrefix);
 					stmt.bindUTF8StringParameter(2, x509CertificateFingerprint);
 					stmt.bindUTF8StringParameter(3, idpSpFlag);
 					stmt.bindUTF8StringParameter(4, ssosV1);

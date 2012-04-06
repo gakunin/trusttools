@@ -14,16 +14,18 @@ if (@ARGV < 4) {
 
 my $json = JSON->new->sort_by('json_sort');
 
+# password for private key (PEM format)
+my $password = "password_for_private_key";
 
-# obtain list data
-my @list_data = &obtain_list_data();
+# obtain providers data
+my @providers_data = &obtain_providers_data();
 
 # obtain discovery methods
 my $_discovery_methods = &obtain_discovery_methods();
 
 # obtain MAIN contents of this json file
 my $_contents = {};
-$_contents->{cert_list} = \@list_data;
+$_contents->{providers} = \@providers_data;
 $_contents->{discovery_methods} = $_discovery_methods;
 
 # obtain ascii armoured payload
@@ -76,43 +78,43 @@ sub JSON::PP::json_sort {
         return ($JSON::PP::a eq "type" || $JSON::PP::a eq "data_types" || $JSON::PP::a eq "data" || $JSON::PP::a eq "sig_params") ? -1 : 1;
     }
 
-    # cert_list
+    # providers
     if ($JSON::PP::a eq "entity_id") {
         return -1;
     }
-    elsif ($JSON::PP::a eq "cert_uri_prefix") {
+    elsif ($JSON::PP::a eq "verify_uri_prefix") {
         return ($JSON::PP::b eq "entity_id") ? 1 : -1;
     }
     elsif ($JSON::PP::a eq "x509_certificate_fingerprint") {
-        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "cert_uri_prefix") ? 1 : -1;
+        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "verify_uri_prefix") ? 1 : -1;
     }
     elsif ($JSON::PP::a eq "idp_sp_flag") {
-        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "cert_uri_prefix" || $JSON::PP::b eq "x509_certificate_fingerprint") ? 1 : -1;
+        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "verify_uri_prefix" || $JSON::PP::b eq "x509_certificate_fingerprint") ? 1 : -1;
     }
     elsif ($JSON::PP::a eq "login_uri_prefix") {
-        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "cert_uri_prefix" || $JSON::PP::b eq "x509_certificate_fingerprint" || $JSON::PP::b eq "idp_sp_flag") ? 1 : -1;
+        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "verify_uri_prefix" || $JSON::PP::b eq "x509_certificate_fingerprint" || $JSON::PP::b eq "idp_sp_flag") ? 1 : -1;
     }
     elsif ($JSON::PP::a eq "pattern_name") {
-        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "cert_uri_prefix" || $JSON::PP::b eq "x509_certificate_fingerprint" || $JSON::PP::b eq "idp_sp_flag" || $JSON::PP::b eq "login_uri_prefix") ? 1 : -1;
+        return ($JSON::PP::b eq "entity_id" || $JSON::PP::b eq "verify_uri_prefix" || $JSON::PP::b eq "x509_certificate_fingerprint" || $JSON::PP::b eq "idp_sp_flag" || $JSON::PP::b eq "login_uri_prefix") ? 1 : -1;
     }
     #
     if ($JSON::PP::b eq "entity_id") {
         return 1;
     }
-    elsif ($JSON::PP::b eq "cert_uri_prefix") {
+    elsif ($JSON::PP::b eq "verify_uri_prefix") {
         return ($JSON::PP::a eq "entity_id") ? -1 : 1;
     }
     elsif ($JSON::PP::b eq "x509_certificate_fingerprint") {
-        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "cert_uri_prefix") ? -1 : 1;
+        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "verify_uri_prefix") ? -1 : 1;
     }
     elsif ($JSON::PP::b eq "idp_sp_flag") {
-        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "cert_uri_prefix" || $JSON::PP::a eq "x509_certificate_fingerprint") ? -1 : 1;
+        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "verify_uri_prefix" || $JSON::PP::a eq "x509_certificate_fingerprint") ? -1 : 1;
     }
     elsif ($JSON::PP::b eq "login_uri_prefix") {
-        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "cert_uri_prefix" || $JSON::PP::a eq "x509_certificate_fingerprint" || $JSON::PP::a eq "idp_sp_flag") ? -1 : 1;
+        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "verify_uri_prefix" || $JSON::PP::a eq "x509_certificate_fingerprint" || $JSON::PP::a eq "idp_sp_flag") ? -1 : 1;
     }
     elsif ($JSON::PP::b eq "pattern_name") {
-        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "cert_uri_prefix" || $JSON::PP::a eq "x509_certificate_fingerprint" || $JSON::PP::a eq "idp_sp_flag" || $JSON::PP::a eq "login_uri_prefix") ? -1 : 1;
+        return ($JSON::PP::a eq "entity_id" || $JSON::PP::a eq "verify_uri_prefix" || $JSON::PP::a eq "x509_certificate_fingerprint" || $JSON::PP::a eq "idp_sp_flag" || $JSON::PP::a eq "login_uri_prefix") ? -1 : 1;
     }
 
     # others
@@ -120,13 +122,13 @@ sub JSON::PP::json_sort {
 }
 
 
-sub obtain_list_data {
-    my @list_data = ();
-    open(LIST, "< $ARGV[0]");
-    while (<LIST>) {
+sub obtain_providers_data {
+    my @providers_data = ();
+    open(PROVIDERS, "< $ARGV[0]");
+    while (<PROVIDERS>) {
         chop;
         # common
-        my ($idpSpFlag, $entityid, $certUriPrefix);
+        my ($idpSpFlag, $entityid, $verifyUriPrefix);
         # idp only
         my ($ssosV1, $ssosV2);
         # sp only
@@ -137,7 +139,7 @@ sub obtain_list_data {
         $ca_certs = "-CApath $ARGV[$#ARGV]" if $#ARGV == 4;
 
         if ($_ =~ s/^idp,\s*//) {
-            ($entityid, $certUriPrefix, $ssosV1, $ssosV2) = split(/\s*,\s*/);
+            ($entityid, $verifyUriPrefix, $ssosV1, $ssosV2) = split(/\s*,\s*/);
             $idpSpFlag = "idp";
             if (!$ssosV1) {
                 $ssosV1 = '';
@@ -147,7 +149,7 @@ sub obtain_list_data {
             }
         }
         elsif ($_ =~ s/^sp,\s*//) {
-            ($entityid, $certUriPrefix, $loginUriPrefix, $patternName, $acs, $samlVersion, $cookieFlag) = split(/\s*,\s*/);
+            ($entityid, $verifyUriPrefix, $loginUriPrefix, $patternName, $acs, $samlVersion, $cookieFlag) = split(/\s*,\s*/);
             $idpSpFlag = "sp";
             if (!$loginUriPrefix) {
                 $loginUriPrefix = '';
@@ -175,8 +177,8 @@ sub obtain_list_data {
         };
         eval {
             alarm(3);
-            print STDERR "openssl s_client -connect $certUriPrefix:443 $ca_certs\n";
-            @result = `echo "GET /" | openssl s_client -connect $certUriPrefix:443 $ca_certs`;
+            print STDERR "openssl s_client -connect $verifyUriPrefix:443 $ca_certs\n";
+            @result = `echo "GET /" | openssl s_client -connect $verifyUriPrefix:443 $ca_certs`;
             alarm(0);
         };
         if($timeout eq '1') {
@@ -216,7 +218,7 @@ sub obtain_list_data {
         # build entity data
         my $entity_data = {};
         $entity_data->{entity_id} = $entityid;
-        $entity_data->{cert_uri_prefix} = $certUriPrefix;
+        $entity_data->{verify_uri_prefix} = $verifyUriPrefix;
         $entity_data->{x509_server_certificate} = $x509ServerCertificate;    # x509_server_certificate not used.
         $entity_data->{x509_certificate_fingerprint} = $fingerprint;
 
@@ -233,11 +235,11 @@ sub obtain_list_data {
             $entity_data->{cookie_flag} = $cookieFlag;
         }
 
-        push(@list_data, $entity_data);
+        push(@providers_data, $entity_data);
     }
-    close(LIST);
+    close(PROVIDERS);
 
-    return @list_data;
+    return @providers_data;
 }
 
 
@@ -255,7 +257,7 @@ sub obtain_ascii_armoured_payload {
 
 
 sub obtain_the_signature {
-    my @_signature = `openssl dgst -sha256 -sign $ARGV[1] -out /tmp/sign.dat /tmp/data.dat; base64 /tmp/sign.dat`;
+    my @_signature = `openssl dgst -sha256 -sign $ARGV[1] -passin pass:$password -out /tmp/sign.dat /tmp/data.dat; base64 /tmp/sign.dat`;
     unlink('/tmp/data.dat');
     unlink('/tmp/sign.dat');
     my $_signature;

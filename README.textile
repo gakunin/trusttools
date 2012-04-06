@@ -25,6 +25,22 @@ h2. GakuNin Trust Tools の利用方法 (エンドユーザ用)
 
 準備中 (FIXME)
 
+h3. GakuNin Trust Tools ブラウザ拡張機能バージョンアップ時の不具合の対処方法
+
+h4. Q: 新しいバージョンの拡張機能をインストールしたら，以下のようなエラーが出てうまく動作しません．
+<pre>
+<code>
+[mozIStorageConnection.createStatement]"  nsresult: "0x80004005 (NS_ERROR_FAILURE)"  location: "JS frame :: chrome://trusttools/content/TrustTools.js :: <TOP_LEVEL> :: line 204"  data: no]
+</code>
+</pre>
+
+h4. A: 古いバージョンの拡張機能が作成したデータベースが残っている可能性があります．ブラウザを終了し，手動でデータベースを削除してからブラウザを起動してみてください．
+<pre>
+<code>
+% rm ~/Library/Application\ Support/Firefox/Profiles/xxxxxx/TrustTools2.sqlite
+</code>
+</pre>
+
 h2. GakuNin Trust Tools の利用方法 (フェデレーション加入機関用)
 
 GakuNin Trust Tools は以下のURIで配布されています．
@@ -128,7 +144,7 @@ Providerリストには，IdP, SP の証明書を検証するための情報が�
 
 <pre>
 <code>
-% ruby ./script/conv_metadata.rb metadata.xml pattern_map.yml > providers_data.csv
+% ruby ./script/conv_metadata.rb -m metadata.xml -p pattern_map.yml > providers_data.csv
 </code>
 </pre>
 
@@ -183,7 +199,7 @@ http://jp.rubyist.net/magazine/?0009-YAML
 % cd files
 % curl -O https://metadata.gakunin.nii.ac.jp/gakunin-metadata.xml
 % cd ..
-% ruby ./script/conv_metadata.rb -m ./files/gakunin-metadata.xml -p pattern_map.yml > ./files/providers_data.csv
+% ruby ./script/conv_metadata.rb -m ./files/gakunin-metadata.xml -p ./config/pattern_map.yml > ./files/providers_data.csv
 </code>
 </pre>
 
@@ -195,7 +211,7 @@ Providerリストの生成には @getservercert.pl@ コマンドを利用しま�
 
 <pre>
 <code>
-% perl ./script/getservercert.pl providers_data.csv private_key cert_uri pattern_script.js [ca_certs]
+% perl ./script/getservercert.pl providers_data.csv private_key certs_uri pattern_script.js [ca_certs]
 </code>
 </pre>
 
@@ -211,8 +227,8 @@ cpan> install JSON
 @getservercert.pl@ の引数はそれぞれ以下のようなものを指定します．
 
 * @providers_data.csv@: Providerリストデータ
-* @private_key@: Providerリスト署名用の秘密鍵
-* @cert_uri@: Providerリスト署名用の秘密鍵に対する証明書 (公開鍵) を公開するURI
+* @private_key@: Providerリスト署名用の秘密鍵 (PEM format)
+* @certs_uri@: Providerリスト署名用の秘密鍵に対する証明書 (公開鍵) を公開するURI
 * @pattern_script.js@: 自動リダイレクトパターンを記述した JavaScript ファイル
 * @ca_certs@: @getservercert.pl@ 実行時にサーバ証明書の検証も実施する場合に指
   定する証明書ディレクトリ
@@ -235,6 +251,29 @@ http://jsonenc.info/jss/1.0/
 JSON Web Signature (JWS)
 http://tools.ietf.org/html/draft-jones-json-web-signature-03
 
+署名用鍵ペアが PKCS12 形式で保存されている場合，PEM 形式に変換する必要があります．
+
+<pre>
+<code>
+% openssl pkcs12 -in object_signing_keypair.p12 -out object_signing_key.pem
+Enter Import Password:
+MAC verified OK
+Enter PEM pass phrase:
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+</code>
+</pre>
+
+PEM 形式の鍵を出力する際に入力したパスワードを @getservercert.pl@ に記述します．パスワード設定前の @getservercert.pl@ は @getservercert_sample.pl@ という名前になっています．
+<pre>
+<code>
+% cp ./script/getservercert_sample.pl ./script/getservercert.pl
+% vi ./script/getservercert.pl
+# password for private key (PEM format)
+my $password = "inputted_password";
+</code>
+</pre>
+ 
 以下，学認DSの場合の実行例です．
 
 <pre>
@@ -254,6 +293,10 @@ http://tools.ietf.org/html/draft-jones-json-web-signature-03
 h4. 3. Providerリストの公開
 
 2 でProviderリストを生成したら，適当なWebサーバにおいてProviderリストおよびProviderリスト署名用証明書を公開します．Providerリストは各サーバの最新状態を反映する必要があるため，定期的に更新するのが望ましいと考えられます．理想的にはProviderの登録システムにおいて，証明書の更新が登録されたタイミング，あるいは，サーバでの証明書更新が検知されたタイミングで，リアルタイムに反映することが望ましいですが，許容できる更新遅延を検討し，定期的にスクリプト等で更新する方法が運用しやすいと考えられます．例えば， @cron@ や @launchd@ を用いて定期的にProviderリストを再生成し，SSH の公開鍵認証を用いて定期的に指定したサーバにアップロードするといった方法が考えられます．以下の図は，自動でProviderリスト更新を実現する場合のシステム構成例を示しています．署名を実行するマシンは，インターネットから直接アクセスできないセグメントに設置し，そこから署名済みのProviderリストをアップロードするのが望ましいと考えられます．
+
+<pre>
+署名用PC == プライベート ==> NAT == グローバル ==> Webサーバ (Providerリスト公開サーバ)
+</pre>
 
 以下では @cron@ を用いて定期的にProviderリストをアップデートする例について示します．
 
@@ -318,6 +361,17 @@ end
 ## [message] Run `whenever --help' for more options.
 
 % whenever -w
+</code>
+</pre>
+
+もし， @whenever -w@ を実行後にすぐにテスト実行したい場合は，以下の例のように現在時刻から1分後に実行するように記述することもできます．
+
+<pre>
+<code>
+% vi config/schedule.rb
+every 1.days, :at => (Time.now + 60).strftime("%H:%M") do
+  command "ls"
+end
 </code>
 </pre>
 
@@ -582,3 +636,11 @@ end
 % whenever -w
 </code>
 </pre>
+
+h3. セキュリティに関する注意事項
+
+GakuNin Trust Tools の信頼性は Object Signing Key の健全性に依存しています．そのため，署名用の秘密鍵の安全性を確保する必要があります．一方で，システムを最新の状態に保つために，自動署名によるProviderリストの更新や拡張機能の更新も必要になってきます．自動署名を実現しながら，最低限のセキュリティを確保するため，以下の点に注意してください．
+
+* PKCS12 から抽出した @object_signing_key.pem@ および @certutil@ で生成した @keystore@ にはパスフレーズを設定してください．また，これらのファイル，ディレクトリは自動署名実行用ユーザ以外からは読み書きできないように設定してください．
+* @getservercert.pl@ および @signxpi.sh@ は，自動署名実行用のユーザからは読み書きできないように設定してください．
+

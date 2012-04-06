@@ -4,8 +4,8 @@
 <!ENTITY pane1.title "証明書リスト管理の設定">
 <!ENTITY pane2.title "cookie（default IdP）の設定">
 
-<!ENTITY certListUrlPref.label "証明書リスト（JSONファイル）の URL を入力">
-<!ENTITY certListUrlPref.accesskey "A">
+<!ENTITY providersUriPref.label "証明書リスト（JSONファイル）の URL を入力">
+<!ENTITY providersUriPref.accesskey "A">
 
 <!ENTITY validDatePref.label "証明書リストの有効期間（日）を入力（整数）">
 <!ENTITY validDatePref.accesskey "B">

@@ -1,5 +1,5 @@
 // preferences for provider list validation module
-pref("extensions.TrustTools.certListUrlPref", "PROVIDERS_URI");	// provider list URI (providers.json)
+pref("extensions.TrustTools.providersUriPref", "PROVIDERS_URI");	// provider list URI (providers.json)
 pref("extensions.TrustTools.validDatePref", 30);  // provider list cache duration
 pref("extensions.TrustTools.userDefinedPref", "User defined string");  // user defined string to authenticate the toolbar (currently, it is readable from the other add-ons... FIXME)
 
