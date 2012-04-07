@@ -25,7 +25,7 @@ h2. GakuNin Trust Tools の利用方法 (エンドユーザ用)
 
 準備中 (FIXME)
 
-h3. GakuNin Trust Tools ブラウザ拡張機能バージョンアップ時の不具合の対処方法
+h3. GakuNin Trust Tools ブラウザ拡張機能バージョンアップ時の不具合の対処方法 (FAQ)
 
 h4. Q: 新しいバージョンの拡張機能をインストールしたら，以下のようなエラーが出てうまく動作しません．
 <pre>
@@ -255,6 +255,10 @@ http://tools.ietf.org/html/draft-jones-json-web-signature-03
 
 <pre>
 <code>
+% cd ./config
+### 証明書の出力
+% openssl pkcs12 -clcerts -in object_signing_keypair.p12 -out object_signing_cert.pem
+### 秘密鍵の出力
 % openssl pkcs12 -in object_signing_keypair.p12 -out object_signing_key.pem
 Enter Import Password:
 MAC verified OK
@@ -303,13 +307,12 @@ h4. 3. Providerリストの公開
 簡単のため，ProviderリストをWebサーバの @DocumentRoot/trusttools/@ で公開するものとし，サーバ側の @DocumentRoot@ のディレクトリを @/var/www/html@ とします．また，Trust Tools を clone したディレクトリのフルパスを @#{root}@ とします． @cron@ ではファイルのパス名をフルパスで指定する必要があります．
 
 学認DSで公開する場合
-
 <pre>
 <code>
 % ruby #{root}/script/conv_metadata.rb #{root}/files/gakunin-metadata.xml #{root}/config/pattern_map.yml > #{root}/files/providers_data.csv
 % perl #{root}/script/getservercert.pl #{root}/files/providers_data.csv #{root}/config/object_signing_key.pem https://ds.gakunin.nii.ac.jp/trusttools/object_signing_cert.pem #{root}/config/pattern_script.js #{root}/certs > #{root}/files/providers.json
-% scp #{root}/config/object_signing_cert.pem username@ds.gakunin.nii.ac.jp:/var/www/html/trusttools/object_signing_cert.pem
-% scp #{root}/files/providers.json username@ds.gakunin.nii.ac.jp:/var/www/html/trusttools/
+% scp -i #{root}/config/id_rsa #{root}/config/object_signing_cert.pem username@ds.gakunin.nii.ac.jp:/var/www/html/trusttools/object_signing_cert.pem
+% scp -i #{root}/config/id_rsa #{root}/files/providers.json username@ds.gakunin.nii.ac.jp:/var/www/html/trusttools/
 </code>
 </pre>
 
@@ -318,12 +321,42 @@ h4. 3. Providerリストの公開
 <code>
 % ruby #{root}/script/conv_metadata.rb #{root}/files/metadata.xml #{root}/config/pattern_map.yml > #{root}/files/providers_data.csv
 % perl #{root}/script/getservercert.pl #{root}/files/providers_data.csv #{root}/config/object_signing_key.pem https://gakunin.example.com/trusttools/object_signing_cert.pem #{root}/config/pattern_script.js #{root}/certs > #{root}/files/providers.json
-% scp #{root}/config/object_signing_cert.pem username@gakunin.example.com:/var/www/html/trusttools/object_signing_cert.pem
-% scp #{root}/files/providers.json username@gakunin.example.com:/var/www/html/trusttools/
+% scp -i #{root}/config/id_rsa #{root}/config/object_signing_cert.pem username@gakunin.example.com:/var/www/html/trusttools/object_signing_cert.pem
+% scp -i #{root}/config/id_rsa #{root}/files/providers.json username@gakunin.example.com:/var/www/html/trusttools/
 </code>
 </pre>
 
-というコマンドを実行することになります．ただし，SSH は公開鍵によりパスフレーズなしで認証可能にしておく必要があります．
+というコマンドを実行することになります．ただし，SSH は公開鍵によりパスフレーズなしで認証可能にしておく必要があります．上記の例では SSH の鍵ペアを #{root}/config 以下に置いていることを想定しています．これらのコマンドおよび後述のブラウザ拡張機能への署名処理のコマンドを @bash@ のスクリプトとして記述したものを @script/sign_and_upload_template.sh@ として用意しています．必要に応じて設定を書き換えてご利用ください．
+
+<pre>
+<code>
+% cp script/sign_and_upload_template.sh script/sign_and_upload.sh
+% vi script/sign_and_upload.sh
+### for rvm users
+### rvm を利用している場合は以下の行を有効にします．
+# [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+# rvm use 1.9.3
+### for local cpan users
+### ローカルな CPAN ライブラリを利用している場合は以下の行を有効にします．
+# export PERL5LIB=$HOME/perl/lib/perl5:$HOME/perl/lib/perl5/site_perl
+
+### その他，パラメータを変更したい場合は，以下を編集します．
+publish_server=test-ds.gakunin.nii.ac.jp
+publish_uri=https://$publish_server/trusttools
+upload_server=username@$publish_server
+upload_path=/var/www/html/trusttools
+ds_server=ds.gakunin.nii.ac.jp
+metadata=metadata.xml
+pattern_script=pattern_script.js
+signing_cert=object_signing_cert.pem
+signing_key=object_signing_key.pem
+providers=providers.json
+xpi_file_prefix=trusttools
+idp_cookie_name_for_ds=_redirect_user_idp
+</code>
+</pre>
+
+以下ではこのスクリプトを用いて自動署名する方法を示します．
 
 次に，このコマンドを @crontab@ に記述することになりますが，Ruby の @whenever@ を用いると比較的簡単に記述することができます． @whenever@ はRubyGems でインストールできます．
 
@@ -341,21 +374,11 @@ Trust Tools のディレクトリで @wheneverize@ コマンドを用いて @con
 % vi config/schedule.rb
 root = File.expand_path("../../", __FILE__)
 every 1.days do
-  set :output, :standard
-  command "ruby #{root}/script/conv_metadata.rb #{root}/files/metadata.xml #{root}/config/pattern_map.yml > #{root}/files/providers_data.csv"
   set :output, "#{root}/log/cron_log.log"
-  command "perl #{root}/script/getservercert.pl #{root}/files/providers_data.csv #{root}/config/object_signing_key.pem https://gakunin.example.com/trusttools/object_signing_cert.pem #{root}/config/pattern_script.js #{root}/certs > #{root}/files/providers.json"
-  command "scp #{root}/config/object_signing_cert.pem username@gakunin.example.com:/var/www/html/trusttools/object_signing_cert.pem"
-  command "scp #{root}/files/providers.json username@gakunin.example.com:/var/www/html/trusttools/"
+  command "#{root}/script/sign_and_upload.sh #{root}"
 end
-% whenever
-0 0 * * * /bin/bash -l -c 'ruby /Users/akiyama/Documents/devel/projects/trusttools/script/conv_metadata.rb /Users/akiyama/Documents/devel/projects/trusttools/files/metadata.xml /Users/akiyama/Documents/devel/projects/trusttools/config/pattern_map.yml > /Users/akiyama/Documents/devel/projects/trusttools/files/providers_data.csv'
 
-0 0 * * * /bin/bash -l -c 'perl /Users/akiyama/Documents/devel/projects/trusttools/script/getservercert.pl /Users/akiyama/Documents/devel/projects/trusttools/files/providers_data.csv /Users/akiyama/Documents/devel/projects/trusttools/config/object_signing_key.pem https://gakunin.example.com/trusttools/object_signing_cert.pem /Users/akiyama/Documents/devel/projects/trusttools/config/pattern_script.js /Users/akiyama/Documents/devel/projects/trusttools/certs > /Users/akiyama/Documents/devel/projects/trusttools/files/providers.json'
-
-0 0 * * * /bin/bash -l -c 'scp /Users/akiyama/Documents/devel/projects/trusttools/config/object_signing_cert.pem username@gakunin.example.com:/var/www/html/trusttools/object_signing_cert.pem >> /Users/akiyama/Documents/devel/projects/trusttools/log/cron_log.log 2>&1'
-
-0 0 * * * /bin/bash -l -c 'scp /Users/akiyama/Documents/devel/projects/trusttools/files/providers.json username@gakunin.example.com:/var/www/html/trusttools/ >> /Users/akiyama/Documents/devel/projects/trusttools/log/cron_log.log 2>&1'
+41 11 * * * /bin/bash -l -c '/Users/akiyama/Documents/devel/projects/trusttools/trusttools/script/sign_and_upload_template.sh /Users/akiyama/Documents/devel/projects/trusttools/trusttools >> /Users/akiyama/Documents/devel/projects/trusttools/trusttools/log/cron_log.log 2>&1'
 
 ## [message] Above is your schedule file converted to cron syntax; your crontab file was not updated.
 ## [message] Run `whenever --help' for more options.
@@ -599,7 +622,7 @@ Providerリストと同様に署名済みブラウザ拡張機能を公開する
 <pre>
 <code>
 % perl #{root}/script/mdsignxpi.pl #{root}/files/gakunin-metadata.xml #{root}/keystore trusttools #{root}/trusttools https://test-ds.gakunin.nii.ac.jp/trusttools/providers.json _redirect_user_idp ds.gakunin.nii.ac.jp
-% scp #{root}/files/trusttools.*.xpi username@ds.gakunin.nii.ac.jp:/var/www/html/trusttools/
+% scp #{root}/config/id_rsa #{root}/files/trusttools.*.xpi username@ds.gakunin.nii.ac.jp:/var/www/html/trusttools/
 </code>
 </pre>
 
@@ -607,11 +630,11 @@ Providerリストと同様に署名済みブラウザ拡張機能を公開する
 <pre>
 <code>
 % perl #{root}/script/mdsignxpi.pl #{root}/files/metadata.xml #{root}/keystore trusttools #{root}/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com
-% scp #{root}/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/
+% scp #{root}/config/id_rsa #{root}/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/
 </code>
 </pre>
 
-というコマンドを実行することになります．ただし，SSH は公開鍵によりパスフレーズなしで認証可能にしておく必要があります．
+というコマンドを実行することになります．ただし，SSH は公開鍵によりパスフレーズなしで認証可能にしておく必要があります．上記の例では SSH の鍵ペアを #{root}/config 以下に置いていることを想定しています．
 
 後は， @config/schedule.rb@ を編集し， @whenever@ コマンドで @crontab@ に反映します．
 
@@ -621,15 +644,15 @@ Providerリストと同様に署名済みブラウザ拡張機能を公開する
 # publish browser extension
 every 1.days do
   set :output, :standard
-  command "perl #{root}/script/mdsignxpi.pl #{root}/files/metadata.xml #{root}/keystore trusttools #{root}/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com"
+  command "perl #{root}/script/mdsignxpi.pl #{root}/files/metadata.xml #{root}/keystore #{root}/files/trusttools #{root}/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com"
   set :output, "#{root}/log/cron_log.log"
-  command "scp #{root}/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/"
+  command "scp -i #{root}/config/id_rsa #{root}/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/"
 end
 
 % whenever
-0 0 * * * /bin/bash -l -c 'perl /Users/akiyama/Documents/devel/projects/trusttools/script/mdsignxpi.pl /Users/akiyama/Documents/devel/projects/trusttools/files/metadata.xml /Users/akiyama/Documents/devel/projects/trusttools/keystore trusttools /Users/akiyama/Documents/devel/projects/trusttools/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com'
+0 0 * * * /bin/bash -l -c 'perl /Users/akiyama/Documents/devel/projects/trusttools/script/mdsignxpi.pl /Users/akiyama/Documents/devel/projects/trusttools/files/metadata.xml /Users/akiyama/Documents/devel/projects/trusttools/keystore /Users/akiyama/Documents/devel/projects/trusttools/files/trusttools /Users/akiyama/Documents/devel/projects/trusttools/trusttools https://gakunin.example.com/trusttools/providers.json _redirect_user_idp gakunin.example.com'
 
-0 0 * * * /bin/bash -l -c 'scp /Users/akiyama/Documents/devel/projects/trusttools/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/ >> /Users/akiyama/Documents/devel/projects/trusttools/log/cron_log.log 2>&1'
+0 0 * * * /bin/bash -l -c 'scp -i /Users/akiyama/Documents/devel/projects/trusttools/config/id_rsa /Users/akiyama/Documents/devel/projects/trusttools/files/trusttools.*.xpi username@gakunin.example.com:/var/www/html/trusttools/ >> /Users/akiyama/Documents/devel/projects/trusttools/log/cron_log.log 2>&1'
 
 ## [message] Above is your schedule file converted to cron syntax; your crontab file was not updated.
 ## [message] Run `whenever --help' for more options.
@@ -644,3 +667,25 @@ GakuNin Trust Tools の信頼性は Object Signing Key の健全性に依存し�
 * PKCS12 から抽出した @object_signing_key.pem@ および @certutil@ で生成した @keystore@ にはパスフレーズを設定してください．また，これらのファイル，ディレクトリは自動署名実行用ユーザ以外からは読み書きできないように設定してください．
 * @getservercert.pl@ および @signxpi.sh@ は，自動署名実行用のユーザからは読み書きできないように設定してください．
 
+h3. セットアップ時の注意事項（FAQ）
+
+h4. Q. 以下のようなエラーが出てProviderリストのキャッシュ (TrustToolsX.sqlite) が更新されません．
+エラー: uncaught exception: [Exception... "Component returned failure code: 0x80070057 (NS_ERROR_ILLEGAL_VALUE) [nsIX509CertDB.constructX509FromBase64]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: chrome://trusttools/content/TrustTools.js :: <TOP_LEVEL> :: line 404"  data: no]
+
+h4. A. 公開サーバから，署名用証明書の取得に失敗しています． providers.json の certs_uri の URI にアクセスできるか確認してみてください．ブラウザで証明書にアクセスできる場合は，PEM形式の証明書に不要な文字が含まれていないか確認してください．openssl の出力には下記のように BEGIN CERTIFICATE の前に証明書の情報が含まれていますが，これを削除しておく必要があります．
+
+<pre>
+<code>
+Bag Attributes
+    friendlyName: National Institute of Informatics n VeriSign, Inc. ID
+    localKeyID: F6 08 E3 0D 56 1C AD 08 1B 00 A7 50 28 F9 5F C9 EA 48 04 86~
+Key Attributes: <No Attributes>
+Bag Attributes
+    friendlyName: National Institute of Informatics n VeriSign, Inc. ID
+    localKeyID: F6 08 E3 0D 56 1C AD 08 1B 00 A7 50 28 F9 5F C9 EA 48 04 86~
+subject=/C=JP/ST=Tokyo/L=Chiyoda-ku/O=National Institute of Informatics/OU=Digital ID Class 3 - Netscape Object Signing/OU=Research and Development Center for Academic Networks, for EXT/CN=National Institute of Informatics
+issuer=/C=US/O=VeriSign, Inc./OU=VeriSign Trust Network/OU=Terms of use at https://www.verisign.com/rpa (c)10/CN=VeriSign Class 3 Code Signing 2010 CA
+-----BEGIN CERTIFICATE-----
+MIIFyDCCBLCgAwIBAgIQR4BafYZNa/sDKoVlqjggDjANBgkqhkiG9w0BAQUFADCB
+</code>
+</pre>
