@@ -17,12 +17,23 @@ upload_server=username@$publish_server
 upload_path=/var/www/html/trusttools
 ds_server=ds.gakunin.nii.ac.jp
 metadata=gakunin-metadata.xml
+metadata_uri=https://metadata.gakunin.nii.ac.jp/$metadata
+metadata_signing_cert=gakunin-signer-2010.cer
 pattern_script=pattern_script.js
 signing_cert=object_signing_cert.pem
 signing_key=object_signing_key.pem
 providers=providers.json
 xpi_file_prefix=trusttools
 idp_cookie_name_for_ds=_redirect_user_idp
+
+# download metadata
+/usr/bin/env curl -R -o $1/files/$metadata $metadata_uri
+
+# verify metadata
+if [ -z "`/usr/bin/env xmlsec1 --verify --trusted-pem $1/config/$metadata_signing_cert $1/files/$metadata 2>&1 | grep 'OK'`" ]; then
+  echo "`date`: Error: failed to verify the metadata file $1/config/$metadata"
+  exit 1
+fi
 
 # collect certificates, then sign and upload them.
 /usr/bin/env ruby $1/script/conv_metadata.rb -m $1/files/$metadata -p $1/config/pattern_map.yml > $1/files/providers_data.csv
