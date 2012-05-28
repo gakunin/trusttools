@@ -18,9 +18,10 @@ fi
 nickname="Your Certificate Name"
 password=your_password
 
-prefs_template="$3/../config/prefs_template.js"
+prefs_template="$3/../../config/prefs_template.js"
 prefs="$3/defaults/preferences/prefs.js"
-sed s?PROVIDERS_URI?$4? $prefs_template  | sed s?COOKIE_VALUE?$5? | sed s?COOKIE_NAME?$6? | sed s?COOKIE_DOMAIN?$7? > /tmp/idpconf
-mv /tmp/idpconf $prefs
+TMPFILE=`mktemp /tmp/trusttools.XXXXXX` || exit 1
+sed s?PROVIDERS_URI?$4? $prefs_template  | sed s?COOKIE_VALUE?$5? | sed s?COOKIE_NAME?$6? | sed s?COOKIE_DOMAIN?$7? > $TMPFILE
+mv $TMPFILE $prefs
 
 $signtool -d $1 -k "$nickname" -p $password -X -Z $2."xpi" $3

@@ -24,6 +24,7 @@ signing_cert=object_signing_cert.pem
 signing_key=object_signing_key.pem
 providers=providers.json
 xpi_file_prefix=trusttools
+xpi_src_path=extensions/firefox
 idp_cookie_name_for_ds=_redirect_user_idp
 
 # download metadata
@@ -44,7 +45,8 @@ echo "`date`: start collecting certificates, then sign and upload them."
 /usr/bin/env scp -i $1/config/id_rsa $1/files/$providers $upload_server:$upload_path/
 
 # sign browser extension and upload it.
+# firefox
 echo ""
 echo "`date`: start signing browser extension and upload it."
-/usr/bin/env perl $1/script/mdsignxpi.pl $1/files/$metadata $1/keystore $1/files/$xpi_file_prefix $1/trusttools $publish_uri/$providers $idp_cookie_name_for_ds $ds_server
+/usr/bin/env perl $1/script/mdsignxpi.pl $1/files/$metadata $1/keystore $1/files/$xpi_file_prefix $1/$xpi_src_path $publish_uri/$providers $idp_cookie_name_for_ds $ds_server
 /usr/bin/env scp -i $1/config/id_rsa $1/files/$xpi_file_prefix.*.xpi $upload_server:$upload_path/
