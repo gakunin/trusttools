@@ -17,15 +17,21 @@
       <preference id="userDefinedPref" name="extensions.TrustTools.userDefinedPref" type="string"/>
     </preferences>
 
-	<!-- オプションUI -->
-    <label accesskey="&providersUriPref.accesskey;" control="textProvidersUriPref">&providersUriPref.label;</label>
-    <textbox id="textProvidersUriPref" preference="providersUriPref"/>
+    <!-- オプションUI -->
+    <groupbox>
+      <label accesskey="&providersUriPref.accesskey;" control="textProvidersUriPref">&providersUriPref.label;</label>
+      <textbox id="textProvidersUriPref" preference="providersUriPref"/>
+    </groupbox>
 
-    <label accesskey="&validDatePref.accesskey;" control="textValidDatePref">&validDatePref.label;</label>
-    <textbox id="textValidDatePref" preference="validDatePref"/>
+    <groupbox>
+      <label accesskey="&validDatePref.accesskey;" control="textValidDatePref">&validDatePref.label;</label>
+      <textbox id="textValidDatePref" preference="validDatePref"/>
+    </groupbox>
 
-    <label accesskey="&userDefinedPref.accesskey;" control="textUserDefinedPref">&userDefinedPref.label;</label>
-    <textbox id="textUserDefinedPref" preference="userDefinedPref"/>
+    <groupbox>
+      <label accesskey="&userDefinedPref.accesskey;" control="textUserDefinedPref">&userDefinedPref.label;</label>
+      <textbox id="textUserDefinedPref" preference="userDefinedPref"/>
+    </groupbox>
   </prefpane>
 
 
@@ -45,21 +51,214 @@
       <preference id="cookieBase64Pref" name="extensions.TrustTools.cookieBase64Pref" type="bool"/>
     </preferences>
 
-	<!-- オプションのUI設定 -->
-	<checkbox id="chkCookieSetPref" preference="cookieSetPref" 
-		label="&cookieSetPref.label;" accesskey="&cookieSetPref.accesskey;"/>
+    <!-- オプションのUI設定 -->
+    <groupbox>
+      <checkbox id="chkCookieSetPref" preference="cookieSetPref" label="&cookieSetPref.label;" accesskey="&cookieSetPref.accesskey;"/>
+    </groupbox>
 
-    <label accesskey="&cookieValuePref.accesskey;" control="textCookieValuePref">&cookieValuePref.label;</label>
-    <textbox id="textCookieValuePref" preference="cookieValuePref"/>
+    <groupbox>
+      <label accesskey="&cookieValuePref.accesskey;" control="textCookieValuePref">&cookieValuePref.label;</label>
+      <textbox id="textCookieValuePref" preference="cookieValuePref"/>
+    </groupbox>
 
-    <label accesskey="&cookieNamePref.accesskey;" control="textCookieNamePref">&cookieNamePref.label;</label>
-    <textbox id="textCookieNamePref" preference="cookieNamePref" readonly="true"/>
+    <groupbox>
+      <label accesskey="&cookieNamePref.accesskey;" control="textCookieNamePref">&cookieNamePref.label;</label>
+      <textbox id="textCookieNamePref" preference="cookieNamePref" readonly="true"/>
+    </groupbox>
 
-    <label accesskey="&cookieDomainPref.accesskey;" control="textCookieDomainPref">&cookieDomainPref.label;</label>
-    <textbox id="textCookieDomainPref" preference="cookieDomainPref" readonly="true"/>
+    <groupbox>
+      <label accesskey="&cookieDomainPref.accesskey;" control="textCookieDomainPref">&cookieDomainPref.label;</label>
+      <textbox id="textCookieDomainPref" preference="cookieDomainPref" readonly="true"/>
+    </groupbox>
 
-	<checkbox id="chkCookieBase64Pref" preference="cookieBase64Pref"
-		label="&cookieBase64Pref.label;" accesskey="&cookieBase64Pref.accesskey;"/>
+    <groupbox>
+      <checkbox id="chkCookieBase64Pref" preference="cookieBase64Pref" label="&cookieBase64Pref.label;" accesskey="&cookieBase64Pref.accesskey;"/>
+    </groupbox>
   </prefpane>
 
+	<!-- GUI表示カスタマイズの設定 -->
+	<prefpane id="pane3" label="&pane3.title;" flex="1">
+		<!-- オプションのID設定 -->
+		<preferences>
+			<!-- 外枠スタイル -->
+			<preference id="borderStylePref" name="extensions.TrustTools.borderStylePref" type="string"/>
+			<!-- 外枠幅 -->
+			<preference id="borderWidthPref" name="extensions.TrustTools.borderWidthPref" type="string"/>
+			<!-- 外枠色 -->
+			<preference id="borderColorPref" name="extensions.TrustTools.borderColorPref" type="string"/>
+			<!-- 背景色 -->
+			<preference id="backgroundColorPref" name="extensions.TrustTools.backgroundColorPref" type="string"/>
+			<!-- 字体色 -->
+			<preference id="fontColorPref" name="extensions.TrustTools.fontColorPref" type="string"/>
+			<!-- 字体スタイル -->
+			<preference id="fontStylePref" name="extensions.TrustTools.fontStylePref" type="string"/>
+			<!-- 字体ウエート -->
+			<preference id="fontWeightPref" name="extensions.TrustTools.fontWeightPref" type="string"/>
+		</preferences>
+
+		<!-- オプションのUI設定 -->
+		<hbox align="end">
+			<button id="btnRetry" label="&btnRetry.label;" oncommand="doRetry()"/>
+		</hbox>
+
+		<groupbox>
+			<caption label="&borderGroupPref.label;"/>
+			<hbox align="end">
+				<label control="menulistBorderStylePref">&borderStylePref.label;</label>
+				<menulist id="menulistBorderStylePref" preference="borderStylePref" oncommand="doPreview()">
+					<menupopup>
+						<menuitem label="none" value="none"/>
+						<menuitem label="hidden" value="hidden"/>
+						<menuitem label="dotted" value="dotted"/>
+						<menuitem label="dashed" value="dashed"/>
+						<menuitem label="solid" value="solid"/>
+						<menuitem label="double" value="double"/>
+						<menuitem label="groove" value="groove"/>
+						<menuitem label="ridge" value="ridge"/>
+						<menuitem label="inset" value="inset"/>
+						<menuitem label="outset" value="outset"/>
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox align="end">
+				<label control="radioBorderWidthPref">&borderWidthPref.label;</label>
+				<radiogroup id="radioBorderWidthPref" preference="borderWidthPref" orient="horizontal" oncommand="doPreview()">
+					<radio label="細" value="thin"/>
+					<radio label="中" value="medium"/>
+					<radio label="太" value="thick"/>
+				</radiogroup>
+			</hbox>
+			<hbox align="end">
+				<label control="textBorderColorPref">&borderColorPref.label;</label>
+				<colorpicker id="textBorderColorPref" preference="borderColorPref" type="button" onchange="doPreview()"/>
+			</hbox>
+		</groupbox>
+
+		<groupbox>
+			<caption label="&backgroundGroupPref.label;"/>
+			<hbox align="end">
+				<label control="textBackgroundColorPref">&backgroundColorPref.label;</label>
+				<colorpicker id="textBackgroundColorPref" preference="backgroundColorPref" type="button" onchange="doPreview()"/>
+			</hbox>
+		</groupbox>
+
+		<groupbox>
+			<caption label="&fontGroupPref.label;"/>
+			<hbox align="end">
+				<label control="textFontColorPrefPref">&fontColorPref.label;</label>
+				<colorpicker id="textFontColorPrefPref" preference="fontColorPref" type="button" onchange="doPreview()"/>
+			</hbox>
+
+			<hbox align="end">
+				<label control="radioFontStylePref">&fontStylePref.label;</label>
+				<radiogroup id="radioFontStylePref" preference="fontStylePref" orient="horizontal" oncommand="doPreview()">
+					<radio label="正常" value="normal"/>
+					<radio label="イタリック" value="italic"/>
+					<radio label="斜体" value="oblique"/>
+				</radiogroup>
+			</hbox>
+
+			<hbox align="end">
+				<label control="radioFontWeightPref">&fontWeightPref.label;</label>
+				<radiogroup id="radioFontWeightPref" preference="fontWeightPref" orient="horizontal" oncommand="doPreview()">
+					<radio label="一般" value="normal"/>
+					<radio label="太字" value="bolder"/>
+				</radiogroup>
+			</hbox>
+		</groupbox>
+
+		<groupbox>
+			<caption label="&guiPreview.label;"/>
+			<hbox align="end">
+				<label control="btnPreview">&labelPreview.label;</label>
+				<button id="btnPreview" height="27" disabled="true">
+					<image src="_certified.gif" width="21" height="21"/>
+					<label value=" 「学認 Certified」 　　　　　　　　　　　　　　　　　"/>
+				</button>
+			</hbox>
+		</groupbox>
+	</prefpane>
+
+	<script type="application/x-javascript">
+	<![CDATA[
+
+	window.addEventListener("load", doPreview, true);
+	var cv_prefsBranch = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.TrustTools.");
+
+	function doPreview() {
+	    var pvwBorderStylePref = document.getElementById('menulistBorderStylePref').value;
+	    var pvwBorderWidthPref = document.getElementById('radioBorderWidthPref').value;
+	    var pvwBorderColorPref = document.getElementById('textBorderColorPref').color;
+	    var pvwBackgroundColorPref = document.getElementById('textBackgroundColorPref').color;
+	    var pvwFontColorPref = document.getElementById('textFontColorPrefPref').color;
+	    var pvwFontStylePref = document.getElementById('radioFontStylePref').value;
+	    var pvwFontWeightPref = document.getElementById('radioFontWeightPref').value;
+
+		// 表示用
+		var previewStyle = "-moz-appearance: none;width:90%;";
+		previewStyle += "border: " + pvwBorderStylePref + " " + pvwBorderWidthPref + " " + pvwBorderColorPref + ";";
+		previewStyle += "background-color: " + pvwBackgroundColorPref + " !important;";
+		previewStyle += "color: " + pvwFontColorPref + " !important;";
+		previewStyle += "font-style: " + pvwFontStylePref + " !important;";
+		previewStyle += "font-weight: " + pvwFontWeightPref + " !important;";
+		document.getElementById('btnPreview').style.cssText = previewStyle;
+	}
+
+	function doRetry() {
+		var pvwBorderStylePref = getRandomOptions(new Array('none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'));
+		var pvwBorderWidthPref = getRandomOptions(new Array('thin', 'medium', 'thick'));
+		var pvwBorderColorPref = getRandomColor2();
+		var pvwBackgroundColorPref = getRandomColor();
+		var pvwFontColorPref = getRandomColor();
+		var pvwFontStylePref = getRandomOptions(new Array('normal', 'italic', 'oblique'));
+		var pvwFontWeightPref = getRandomOptions(new Array('normal', 'bolder'));
+
+		// 表示用
+	    document.getElementById('menulistBorderStylePref').value = pvwBorderStylePref;
+	    document.getElementById('radioBorderWidthPref').value = pvwBorderWidthPref;
+	    document.getElementById('textBorderColorPref').color = pvwBorderColorPref;
+	    document.getElementById('textBackgroundColorPref').color = pvwBackgroundColorPref;
+	    document.getElementById('textFontColorPrefPref').color = pvwFontColorPref;
+	    document.getElementById('radioFontStylePref').value = pvwFontStylePref;
+	    document.getElementById('radioFontWeightPref').value = pvwFontWeightPref;
+
+		// 保存用
+	    cv_prefsBranch.setCharPref("borderStylePref", pvwBorderStylePref);
+	    cv_prefsBranch.setCharPref("borderWidthPref", pvwBorderWidthPref);
+	    cv_prefsBranch.setCharPref("borderColorPref", pvwBorderColorPref);
+	    cv_prefsBranch.setCharPref("backgroundColorPref", pvwBackgroundColorPref);
+	    cv_prefsBranch.setCharPref("fontColorPref", pvwFontColorPref);
+	    cv_prefsBranch.setCharPref("fontStylePref", pvwFontStylePref);
+	    cv_prefsBranch.setCharPref("fontWeightPref", pvwFontWeightPref);
+
+	    doPreview();
+	}
+
+	// #0000FF
+	function getRandomColor() {
+		return '#' + (0x1000000 + Math.random() * 0xFFFFFF).toString(16).substr(1,6);
+	}
+
+	// rgb(0,0,255)
+	function getRandomColor2() {
+		var r = function () { return Math.floor(Math.random() * 256) };
+		return "rgb(" + r() + "," + r() + "," + r() + ")";
+	}
+
+	function getRandomOptions(opts) {
+		var r = Math.floor(Math.random() * (opts.length));
+		return opts[r];
+	}
+
+	// Test用
+	function getPropList(myObject) {
+		var s="";
+		for (prop in myObject) { 
+			s += ("[" + prop + "] " + myObject[prop] + "\n");
+		}
+		alert(s);
+	}
+
+	]]>
+	</script>
 </prefwindow>

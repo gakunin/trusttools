@@ -40,6 +40,16 @@ var TrustTools = {
 		// toolbar初期化
 		this.progressmeter.style.visibility = "hidden";
 		this.toolbar.className = "";
+
+		this.toolbar.style.borderStyle = "";
+		this.toolbar.style.borderWidth = "";
+		this.toolbar.style.borderColor = "";
+		this.toolbar.style.backgroundColor = "";
+		this.toolbar.style.color = "";
+		this.toolbar.style.fontStyle = "";
+		this.toolbar.style.fontWeight = "";
+		this.toolbar.style.cssText = "";
+
 		this.toolbarImage1.src = "";
 		this.toolbarLabel1.value = "TrustTools: initializing...";
 	},
@@ -77,7 +87,39 @@ var TrustTools = {
 		// cookie Base64符号化フラグ
 		this.cookieBase64Pref = this.prefs.getBoolPref("cookieBase64Pref");
 
-		//this.toolbarLabel1.value = this.cookieNamePref + " | " + this.cookieValuePref + " | " + this.cookieDomainPref;
+		// GUI表示カスタマイズの設定値取得
+		// 無ければ、ランダム値を設定
+		if (!this.prefs.prefHasUserValue("borderStylePref")) {
+			this.prefs.setCharPref("borderStylePref", getRandomOptions(new Array('none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset')));
+		}
+		if (!this.prefs.prefHasUserValue("borderWidthPref")) {
+			this.prefs.setCharPref("borderWidthPref", getRandomOptions(new Array('thin', 'medium', 'thick')));
+		}
+		if (!this.prefs.prefHasUserValue("borderColorPref")) {
+			this.prefs.setCharPref("borderColorPref", getRandomColor2());
+		}
+		if (!this.prefs.prefHasUserValue("backgroundColorPref")) {
+			this.prefs.setCharPref("backgroundColorPref", getRandomColor());
+		}
+		if (!this.prefs.prefHasUserValue("fontColorPref")) {
+			this.prefs.setCharPref("fontColorPref", getRandomColor());
+		}
+		if (!this.prefs.prefHasUserValue("fontStylePref")) {
+			this.prefs.setCharPref("fontStylePref", getRandomOptions(new Array('normal', 'italic', 'oblique')));
+		}
+		if (!this.prefs.prefHasUserValue("fontWeightPref")) {
+			this.prefs.setCharPref("fontWeightPref", getRandomOptions(new Array('normal', 'bolder')));
+		}
+		this.borderStylePref = this.prefs.getCharPref("borderStylePref");
+		this.borderWidthPref = this.prefs.getCharPref("borderWidthPref");
+		this.borderColorPref = this.prefs.getCharPref("borderColorPref");
+		this.backgroundColorPref = this.prefs.getCharPref("backgroundColorPref");
+		this.fontColorPref = this.prefs.getCharPref("fontColorPref");
+		this.fontStylePref = this.prefs.getCharPref("fontStylePref");
+		this.fontWeightPref = this.prefs.getCharPref("fontWeightPref");
+
+		//msg = this.borderStylePref + " | " + this.borderWidthPref + " | " + this.borderColorPref + " | " + this.backgroundColorPref + " | " + this.fontColorPref + " | " + this.fontStylePref + " | " + this.fontWeightPref;
+		//alert(msg);
 	},
 
 
@@ -247,9 +289,29 @@ var TrustTools = {
 		if (hasSite == 1) {
 			// キャッシュされた証明書とアクセスしたサイトの証明書が一致の場合
 			if (hasCert == 1) {
-				this.toolbar.className = "greentoolbar";
+				//this.toolbar.className = "greentoolbar";
 				this.toolbarImage1.src = srcCertified;
 				this.toolbarLabel1.value = strCertified + this.userDefinedPref;
+
+				// GUI表示カスタマイズ機能
+				// windowsのみ対応
+				//this.toolbar.style.borderStyle = this.borderStylePref;
+				//this.toolbar.style.borderWidth = this.borderWidthPref;
+				//this.toolbar.style.borderColor = this.borderColorPref;
+				//this.toolbar.style.backgroundColor = this.backgroundColorPref;
+				//this.toolbar.style.color = this.fontColorPref;
+				//this.toolbar.style.fontStyle = this.fontStylePref;
+				//this.toolbar.style.fontWeight = this.fontWeightPref;
+
+				// alternative way to set style
+				// windows & mac os 対応
+				var toolbarStyle = "-moz-appearance: none;";
+				toolbarStyle += "border: " + this.borderWidthPref + " " + this.borderStylePref + " " + this.borderColorPref + ";";
+				toolbarStyle += "background-color: " + this.backgroundColorPref + " !important;";
+				toolbarStyle += "color: " + this.fontColorPref + " !important;";
+				toolbarStyle += "font-style: " + this.fontStylePref + " !important;";
+				toolbarStyle += "font-weight: " + this.fontWeightPref + " !important;";
+				this.toolbar.style.cssText = toolbarStyle;
 			}
 			else {
 				this.toolbar.className = "redtoolbar";
@@ -1057,6 +1119,23 @@ function json2String(jsonObj) {
 		return r.join('');
 	}
 	return jsonObj.toString();
+}
+
+
+// #0000FF
+function getRandomColor() {
+	return '#' + (0x1000000 + Math.random() * 0xFFFFFF).toString(16).substr(1,6);
+}
+
+// rgb(0,0,255)
+function getRandomColor2() {
+	var r = function () { return Math.floor(Math.random() * 256) };
+	return "rgb(" + r() + "," + r() + "," + r() + ")";
+}
+
+function getRandomOptions(opts) {
+	var r = Math.floor(Math.random() * (opts.length));
+	return opts[r];
 }
 
 

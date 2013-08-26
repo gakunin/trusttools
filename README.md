@@ -1,8 +1,8 @@
-h1. GakuNin Trust Tools
+# GakuNin Trust Tools
 
  *GakuNin Trust Tools* is a framework to improve usability and security of the authentication and authorization federation. The "GakuNin Trust Tools Wiki":https://github.com/gakunin/trusttools/wiki has maintained in-depth documentation for GakuNin Trust Tools (sorry currently only Japanese). It should be your first stop if you are wondering about a more in-depth look at GakuNin Trust Tools, how it works, and how to use it.
 
-h2. License (The MIT License)
+## License (The MIT License)
 
 Copyright (c) 2011-2012 National Institute of Informatics, SECIOSS, Toyokazu Akiyama
 
