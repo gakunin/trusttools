@@ -177,8 +177,8 @@ sub obtain_providers_data {
         };
         eval {
             alarm(3);
-            print STDERR "openssl s_client -connect $verifyUriPrefix:443 $ca_certs\n";
-            @result = `echo "GET /" | openssl s_client -connect $verifyUriPrefix:443 $ca_certs`;
+            print STDERR "openssl s_client -connect $verifyUriPrefix:443 -servername $verifyUriPrefix $ca_certs\n";
+            @result = `echo "GET /" | openssl s_client -connect $verifyUriPrefix:443 -servername $verifyUriPrefix $ca_certs`;
             alarm(0);
         };
         if($timeout eq '1') {
